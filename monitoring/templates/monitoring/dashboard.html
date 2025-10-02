@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard - Real-time Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(to bottom, #0a0e1a, #0d1220);
+            color: #f0f4f8;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(26, 32, 44, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(45, 55, 72, 0.5);
+        }
+
+        .navbar-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo svg {
+            width: 24px;
+            height: 24px;
+            color: #0a0e1a;
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-text p {
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            font-size: 0.875rem;
+        }
+
+        .username {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            color: #0a0e1a;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-outline {
+            background: rgba(26, 32, 44, 0.5);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            color: #f0f4f8;
+        }
+
+        .btn-outline:hover {
+            background: rgba(26, 32, 44, 1);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            color: #a0aec0;
+            max-width: 42rem;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(26, 32, 44, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            color: #a0aec0;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-icon svg {
+            width: 16px;
+            height: 16px;
+            color: #00d4ff;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f0f4f8;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .stat-unit {
+            font-size: 1.125rem;
+            color: #a0aec0;
+        }
+
+        .stat-description {
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-top: 0.5rem;
+        }
+
+        /* Charts and Data Section */
+        .data-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(26, 32, 44, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f0f4f8;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: #a0aec0;
+        }
+
+        /* Data List */
+        .data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(45, 55, 72, 0.2);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: rgba(45, 55, 72, 0.3);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .data-item-info {
+            flex: 1;
+        }
+
+        .data-time {
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-values {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .data-value {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .data-value svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .temp-value {
+            color: #00d4ff;
+        }
+
+        .humidity-value {
+            color: #00ffc8;
+        }
+
+        .prediction-badge {
+            padding: 0.25rem 0.75rem;
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Chart Container */
+        #chartContainer {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .data-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .navbar-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>IoT Dashboard</h1>
+                    <p>Real-time Monitoring</p>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                {% if user.is_authenticated %}
+                    <span class="user-info">Hi, <span class="username">{{ user.username }}</span>!</span>
+                    <a href="{% url 'logout' %}" class="btn btn-outline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>IoT Monitoring Dashboard</h1>
+            <p>Monitor your IoT devices in real-time with advanced analytics and beautiful visualizations. Track temperature, humidity, and system predictions all in one place.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Current Temperature</span>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">
+                    <span id="currentTemp">30</span>
+                    <span class="stat-unit">°C</span>
+                </div>
+                <p class="stat-description">+2°C from last hour</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Humidity Level</span>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">
+                    <span id="currentHumidity">60</span>
+                    <span class="stat-unit">%</span>
+                </div>
+                <p class="stat-description">-5% from last hour</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Active Sensors</span>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">
+                    <span>12</span>
+                </div>
+                <p class="stat-description">All systems operational</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Data Points</span>
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">
+                    <span>1.2k</span>
+                </div>
+                <p class="stat-description">Today's collections</p>
+            </div>
+        </div>
+
+        <!-- Charts and Data Section -->
+        <div class="data-section">
+            <!-- Chart Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Temperature Trend</h2>
+                    <p class="card-description">Real-time temperature monitoring over time</p>
+                </div>
+                <div id="chartContainer">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data List Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Latest Sensor Readings</h2>
+                </div>
+                <div class="data-list" id="dataList">
+                    <!-- Data items will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sample data
+        const sensorData = [
+            { time: "14:00", temperature: 28, humidity: 65, prediction: "Normal" },
+            { time: "14:15", temperature: 28.5, humidity: 63, prediction: "Normal" },
+            { time: "14:30", temperature: 29, humidity: 64, prediction: "Warm" },
+            { time: "14:45", temperature: 29.5, humidity: 62, prediction: "Warm" },
+            { time: "15:00", temperature: 30, humidity: 60, prediction: "Hot" },
+        ];
+
+        const chartData = [
+            { time: "12:00", temperature: 26 },
+            { time: "13:00", temperature: 27 },
+            { time: "14:00", temperature: 28 },
+            { time: "15:00", temperature: 30 },
+            { time: "16:00", temperature: 29 },
+            { time: "17:00", temperature: 28 },
+        ];
+
+        // Update current stats
+        const currentData = sensorData[sensorData.length - 1];
+        document.getElementById('currentTemp').textContent = currentData.temperature;
+        document.getElementById('currentHumidity').textContent = currentData.humidity;
+
+        // Populate data list
+        const dataList = document.getElementById('dataList');
+        sensorData.forEach(item => {
+            const dataItem = document.createElement('div');
+            dataItem.className = 'data-item';
+            dataItem.innerHTML = `
+                <div class="data-item-info">
+                    <div class="data-time">${item.time}</div>
+                    <div class="data-values">
+                        <div class="data-value temp-value">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                            </svg>
+                            <span>${item.temperature}°C</span>
+                        </div>
+                        <div class="data-value humidity-value">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                            </svg>
+                            <span>${item.humidity}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="prediction-badge">${item.prediction}</div>
+            `;
+            dataList.appendChild(dataItem);
+        });
+
+        // Create chart
+        const ctx = document.getElementById('tempChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.4)');
+        gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.map(d => d.time),
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: chartData.map(d => d.temperature),
+                    borderColor: '#00d4ff',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#00d4ff',
+                    pointBorderColor: '#0a0e1a',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#a0aec0',
+                            font: {
+                                size: 12,
+                                family: "'Segoe UI', system-ui, sans-serif"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 32, 44, 0.9)',
+                        titleColor: '#f0f4f8',
+                        bodyColor: '#a0aec0',
+                        borderColor: 'rgba(45, 55, 72, 0.5)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + '°C';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(45, 55, 72, 0.3)',
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#a0aec0',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(45, 55, 72, 0.3)',
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#a0aec0',
+                            font: {
+                                size: 11
+                            },
+                            callback: function(value) {
+                                return value + '°C';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

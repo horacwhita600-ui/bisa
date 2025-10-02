@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IoT Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(to bottom, #0a0e1a, #0d1220);
+            color: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            color: #0a0e1a;
+        }
+
+        .logo-section h1 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-section p {
+            color: #a0aec0;
+            font-size: 0.875rem;
+        }
+
+        .form-card {
+            background: rgba(26, 32, 44, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f0f4f8;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: #a0aec0;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #f0f4f8;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(45, 55, 72, 0.3);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            border-radius: 8px;
+            color: #f0f4f8;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            background: rgba(45, 55, 72, 0.5);
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #718096;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #00d4ff;
+        }
+
+        .checkbox-group label {
+            color: #a0aec0;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .forgot-link {
+            color: #00d4ff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-link:hover {
+            color: #00ffc8;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #00ffc8);
+            color: #0a0e1a;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(45, 55, 72, 0.5);
+        }
+
+        .divider span {
+            padding: 0 1rem;
+        }
+
+        .social-login {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .btn-social {
+            background: rgba(45, 55, 72, 0.3);
+            border: 1px solid rgba(45, 55, 72, 0.5);
+            color: #f0f4f8;
+        }
+
+        .btn-social:hover {
+            background: rgba(45, 55, 72, 0.5);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-social svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(45, 55, 72, 0.5);
+            color: #a0aec0;
+            font-size: 0.875rem;
+        }
+
+        .form-footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-footer a:hover {
+            color: #00ffc8;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: #86efac;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .form-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+            </div>
+            <h1>IoT Dashboard</h1>
+            <p>Real-time Monitoring System</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Welcome Back!</h2>
+                <p>Enter your credentials to access your dashboard</p>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your.email@example.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <div class="form-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-link">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    Sign In
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>Or continue with</span>
+            </div>
+
+            <div class="social-login">
+                <button class="btn btn-social" onclick="alert('Google login not implemented')">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <button class="btn btn-social" onclick="alert('GitHub login not implemented')">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    Continue with GitHub
+                </button>
+            </div>
+
+            <div class="form-footer">
+                Don't have an account? <a href="{% url 'register' %}">Create Account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Hide previous messages
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+            
+            // Simple validation
+            if (!email || !password) {
+                errorMessage.textContent = 'Please fill in all fields';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                errorMessage.textContent = 'Please enter a valid email address';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorMessage.textContent = 'Password must be at least 6 characters';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            // Simulate successful login
+            successMessage.textContent = 'Login successful! Redirecting...';
+            successMessage.classList.add('show');
+            
+            // Redirect to dashboard after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+            
+            console.log('Login attempt:', { email, remember });
+        });
+    </script>
+</body>
+</html>
