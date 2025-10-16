@@ -315,13 +315,17 @@
                 <p>Enter your credentials to access your dashboard</p>
             </div>
 
-            <!-- Error Message -->
-            <div class="error-message" id="errorMessage"></div>
-            
-            <!-- Success Message -->
-            <div class="success-message" id="successMessage"></div>
+            <!-- Django messages (server-side errors/success) -->
+            {% if messages %}
+            <div class="form-messages">
+                {% for message in messages %}
+                    <div class="error-message show">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-            <form id="loginForm">
+            <form id="loginForm" method="post" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input 
@@ -386,56 +390,38 @@
             </div>
 
             <div class="form-footer">
-                Don't have an account? <a href="{% url 'register' %}">Create Account</a>
+                Don't have an account? <a href="{% url 'accounts:register' %}">Create Account</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Form validation and submission
+        // Basic client-side validation: allow submission when valid
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
-            
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
-            
-            // Hide previous messages
-            errorMessage.classList.remove('show');
-            successMessage.classList.remove('show');
-            
-            // Simple validation
+            const errorMessageEl = document.querySelector('.form-messages .error-message') || null;
+
             if (!email || !password) {
-                errorMessage.textContent = 'Please fill in all fields';
-                errorMessage.classList.add('show');
+                // prevent submit and show a small inline message
+                e.preventDefault();
+                if (errorMessageEl) {
+                    errorMessageEl.textContent = 'Please fill in all fields';
+                    errorMessageEl.classList.add('show');
+                }
                 return;
             }
-            
+
             if (!email.includes('@')) {
-                errorMessage.textContent = 'Please enter a valid email address';
-                errorMessage.classList.add('show');
+                e.preventDefault();
+                if (errorMessageEl) {
+                    errorMessageEl.textContent = 'Please enter a valid email address';
+                    errorMessageEl.classList.add('show');
+                }
                 return;
             }
-            
-            if (password.length < 6) {
-                errorMessage.textContent = 'Password must be at least 6 characters';
-                errorMessage.classList.add('show');
-                return;
-            }
-            
-            // Simulate successful login
-            successMessage.textContent = 'Login successful! Redirecting...';
-            successMessage.classList.add('show');
-            
-            // Redirect to dashboard after 2 seconds
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
-            
-            console.log('Login attempt:', { email, remember });
+
+            // otherwise allow the form to submit to server; server will redirect to dashboard on success
         });
     </script>
 </body>
